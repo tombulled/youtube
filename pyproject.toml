@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "youtube"
+version = "0.1.0"
+description = "Python Client for YouTube using Google's Private InnerTube API"
+authors = ["Tom Bulled <26026015+tombulled@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/tombulled/youtube"
+repository = "https://github.com/tombulled/youtube"
+keywords = ["youtube", "innertube"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+innertube = {git = "https://github.com/tombulled/innertube", rev = "main"}
+addict = "^2.4.0"
+humanize = "^3.2.0"
+pycountry = "^20.7.3"
+pydantic = "^1.8.1"
+furl = "^2.1.0"
+pendulum = "^2.1.2"
+requests = "^2.25.1"
+pydantype = {git = "https://github.com/tombulled/pydantype.git", rev = "main"}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
