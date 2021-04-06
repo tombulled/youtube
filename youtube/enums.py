@@ -11,36 +11,17 @@ CountryCode = enum.Enum \
     }
 )
 
-class AudioQuality(enum.Enum):
+class StrEnum(str, enum.Enum): pass
+
+class AudioQuality(StrEnum):
     LOW    = 'AUDIO_QUALITY_LOW'
     MEDIUM = 'AUDIO_QUALITY_MEDIUM'
     HIGH   = 'AUDIO_QUALITY_HIGH'
 
-class MimeType(enum.Enum):
-    AUDIO_WEBM = 'audio/webm'
-    AUDIO_MP4  = 'audio/mp4'
-    VIDEO_WEBM = 'video/webm'
-    VIDEO_MP4  = 'video/mp4'
-    VIDEO_3GPP = 'video/3gpp'
-
-    def guess_extension(self):
-        return mimetypes.guess_extension(self.value)
-
-    def guess_all_extensions(self):
-        return mimetypes.guess_all_extensions(self.value)
-
-class CodecType(enum.Enum):
-    AV1  = 'av01'
-    AVC1 = 'avc1'
-    MP4A = 'mp4a'
-    MP4V = 'mp4v'
-    VP9  = 'vp9'
-    OPUS = 'opus'
-
-class ProjectionType(enum.Enum):
+class ProjectionType(StrEnum):
     RECTANGULAR = 'RECTANGULAR'
 
-class QualityType(enum.Enum):
+class QualityType(StrEnum):
     LARGE  = 'large'
     MEDIUM = 'medium'
     SMALL  = 'small'
@@ -49,7 +30,7 @@ class QualityType(enum.Enum):
     HD_1080 = 'hd1080'
     HD_720  = 'hd720'
 
-class QualityLabel(enum.Enum):
+class QualityLabel(StrEnum):
     HD_1080 = '1080p'
     HD_720  = '720p'
 
@@ -59,37 +40,37 @@ class QualityLabel(enum.Enum):
     SD_144 = '144p'
 
 class AudioChannels(enum.Enum):
-    STEREO = 2
     MONO   = 1
+    STEREO = 2
 
-class CategoryType(enum.Enum):
+class CategoryType(StrEnum):
     MUSIC = 'Music'
 
-class ContinuationType(str, enum.Enum):
+class ContinuationType(StrEnum):
     WATCH_NEXT = 'WATCH_NEXT'
 
-class ContinuationRequestType(str, enum.Enum):
+class ContinuationRequestType(StrEnum):
     WATCH_NEXT = 'CONTINUATION_REQUEST_TYPE_WATCH_NEXT'
 
     @property
     def type(self):
         return ContinuationType(self.name)
 
-class BrowseId(str, enum.Enum):
+class BrowseId(StrEnum):
     HASHTAG       = 'FEhashtag'
     HOME          = 'FEwhat_to_watch'
     EXPLORE       = 'FEexplore'
     SUBSCRIPTIONS = 'FEsubscriptions'
     LIBRARY       = 'FElibrary'
 
-class BadgeType(str, enum.Enum):
+class BadgeType(StrEnum):
     VERIFIED        = 'VERIFIED'
     VERIFIED_ARTIST = 'VERIFIED_ARTIST'
     LIVE_NOW        = 'LIVE_NOW'
     SIMPLE          = 'SIMPLE'
     YPC             = 'YPC'
 
-class BadgeStyleType(str, enum.Enum):
+class BadgeStyleType(StrEnum):
     VERIFIED        = 'BADGE_STYLE_TYPE_VERIFIED'
     VERIFIED_ARTIST = 'BADGE_STYLE_TYPE_VERIFIED_ARTIST'
     LIVE_NOW        = 'BADGE_STYLE_TYPE_LIVE_NOW'
@@ -100,13 +81,13 @@ class BadgeStyleType(str, enum.Enum):
     def type(self):
         return BadgeType(self.name)
 
-class PivotType(str, enum.Enum):
+class PivotType(StrEnum):
     HOME          = 'HOME'
     EXPLORE       = 'EXPLORE'
     SUBSCRIPTIONS = 'SUBSCRIPTIONS'
     LIBRARY       = 'LIBRARY'
 
-class PivotIdentifier(str, enum.Enum):
+class PivotIdentifier(StrEnum):
     HOME          = 'pivot-w2w'
     EXPLORE       = 'pivot-explore'
     SUBSCRIPTIONS = 'pivot-subs'
@@ -115,3 +96,27 @@ class PivotIdentifier(str, enum.Enum):
     @property
     def type(self):
         return PivotType(self.name)
+
+class CodecType(StrEnum):
+    _generate_next_value_ = lambda name, *_: name.lower()
+
+    AV01 = enum.auto()
+    AVC1 = enum.auto()
+    MP4A = enum.auto()
+    MP4V = enum.auto()
+    VP9  = enum.auto()
+    OPUS = enum.auto()
+
+class MediaType(StrEnum):
+    _generate_next_value_ = lambda name, *_: name.lower().replace('_', '')
+
+    WEBM  = enum.auto()
+    MP4   = enum.auto()
+    _3GP = enum.auto()
+
+class MediaSubtype(StrEnum):
+    _generate_next_value_ = lambda name, *_: name.lower().replace('_', '')
+
+    WEBM  = enum.auto()
+    MP4   = enum.auto()
+    _3GPP = enum.auto()

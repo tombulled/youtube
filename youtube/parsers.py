@@ -1,7 +1,10 @@
-import pendulum
 import addict
-import re
+import pendulum
+
+import mime
+
 import datetime
+import typing
 
 from . import models
 from . import enums
@@ -9,20 +12,7 @@ from . import maps
 from . import utils
 from . import types
 
-from typing import \
-(
-    List,
-)
-
-from .models import \
-(
-    PlayerResponse,
-    WatchNextResponse,
-    WatchResponse,
-    Pivot,
-)
-
-def parse_guide(data: dict) -> List[Pivot]:
+def parse_guide(data: dict) -> typing.List[models.Pivot]:
     return \
     [
         models.Pivot \
@@ -35,7 +25,7 @@ def parse_guide(data: dict) -> List[Pivot]:
         for item in item.values()
     ]
 
-def parse_player(data: dict) -> PlayerResponse:
+def parse_player(data: dict) -> models.PlayerResponse:
     data = addict.Dict(data)
 
     streams = []
@@ -43,6 +33,13 @@ def parse_player(data: dict) -> PlayerResponse:
     for stream in [*data.streamingData.formats, *data.streamingData.adaptiveFormats]:
         has_audio = bool(stream.audioQuality)
         has_video = bool(stream.fps)
+
+        mime_type = utils.get \
+        (
+            stream.mimeType,
+            mime.parse,
+            lambda value: addict.Dict(value.dict()),
+        )
 
         stream_data = dict \
         (
@@ -56,40 +53,37 @@ def parse_player(data: dict) -> PlayerResponse:
             last_modified = utils.get(stream.lastModified, int, 1e-6.__mul__),
             mime = utils.get \
             (
-                stream.mimeType,
-                lambda value: utils.get \
+                mime_type,
+                lambda value: models.Stream.MimeType \
                 (
-                    re.match(r'(?P<mime_type>.+); codecs="(?P<codecs>.+)"', value),
-                    lambda match: utils.get \
-                    (
-                        addict.Dict(match.groupdict()),
-                        lambda groups: utils.get \
-                        (
-                            models.MimeType(groups.mime_type),
-                            lambda mime_type: models.Stream.Mime \
-                            (
-                                type = mime_type,
-                                codecs = \
-                                [
-                                    models.Stream.Mime.Codec \
-                                    (
-                                        type    = codec_type,
-                                        version = codec_version,
-                                    )
-                                    for codec in groups.codecs.split(',')
-                                    for codec_type, codec_version, *_ in \
-                                    (
-                                        (
-                                            *codec.strip().split('.', 1),
-                                            None,
-                                        ),
-                                    )
-                                ],
-                                extension = maps.file_extensions.get(mime_type),
-                            ),
-                        ),
-                    ),
+                    type    = value.type,
+                    subtype = value.subtype,
                 ),
+            ),
+            extension = utils.get \
+            (
+                mime_type,
+                lambda value: maps.file_extensions.get(value.subtype),
+            ),
+            codecs = utils.get \
+            (
+                mime_type,
+                lambda value: \
+                [
+                    models.Stream.Codec \
+                    (
+                        type    = codec_type,
+                        version = codec_version,
+                    )
+                    for codec in value.parameters.codecs.split(',')
+                    for codec_type, codec_version, *_ in \
+                    (
+                        (
+                            *codec.strip().split('.', 1),
+                            None,
+                        ),
+                    )
+                ],
             ),
             range = utils.get \
             (
@@ -162,6 +156,9 @@ def parse_player(data: dict) -> PlayerResponse:
         )[has_audio + 2 * has_video]
 
         streams.append(stream_class(**stream_data))
+
+        from pprint import pprint as pp
+        pp(streams[-1].dict())
 
     video_details = models.PlayerResponse.VideoDetails \
     (
@@ -254,7 +251,7 @@ def parse_player(data: dict) -> PlayerResponse:
         microformat   = microformat,
     )
 
-def parse_next(data: dict) -> WatchNextResponse:
+def parse_next(data: dict) -> models.WatchNextResponse:
     data = addict.Dict(data)
 
     watch_next_results           = utils.flatten(data.contents.twoColumnWatchNextResults.results.results.contents)
@@ -541,10 +538,10 @@ def parse_next(data: dict) -> WatchNextResponse:
         ],
     )
 
-def parse_video_info(data: dict) -> PlayerResponse:
+def parse_video_info(data: dict) -> models.PlayerResponse:
     return parse_player(addict.Dict(data).player_response)
 
-def parse_watch(data: dict) -> WatchResponse:
+def parse_watch(data: dict) -> models.WatchResponse:
     data = addict.Dict(data)
 
     return models.WatchResponse \

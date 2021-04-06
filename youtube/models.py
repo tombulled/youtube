@@ -1,6 +1,11 @@
 import pydantic
 import humanize
+
+import mime.enums
+
 import urllib.parse
+
+from . import enums
 
 from typing import \
 (
@@ -19,7 +24,7 @@ from pydantype import \
 from .enums import \
 (
     AudioQuality,
-    MimeType,
+    # MimeType,
     CodecType,
     ProjectionType,
     QualityType,
@@ -105,30 +110,43 @@ class Stream(BaseModel):
         index: IntegerRange
         init:  IntegerRange
 
-    class Mime(BaseModel):
-        class Codec(BaseModel):
-            type:    CodecType
-            version: Optional[CodecVersion]
-
-        type:      MimeType
-        codecs:    List[Codec]
-        extension: FileExtension
+    # class MimeType(BaseModel):
+    #     class Codec(BaseModel):
+    #         type:    CodecType
+    #         version: Optional[CodecVersion]
+    #
+    #     type:      MimeType
+    #     subtype:   MimeType
+    #     codecs:    List[Codec]
+    #     extension: FileExtension
 
     class Quality(BaseModel):
         label: Optional[QualityLabel]
         type:  QualityType
 
+    class MimeType(BaseModel):
+        type:    mime.enums.MediaType
+        subtype: enums.MediaSubtype
+
+    class Codec(BaseModel):
+        type:    CodecType
+        version: Optional[CodecVersion]
+
     itag:           Integer
     duration:       Duration
     last_modified:  DateTime
     content_length: Optional[ContentLength]
-    mime:           Mime
+    mime:           MimeType
     url:            Optional[Url]
     bitrate:        Bitrate
     projection:     ProjectionType
     quality:        Quality
     range:          Optional[Range]
     loudness:       Optional[Loudness]
+
+    codecs:    List[Codec]
+    extension: FileExtension
+    mime:      MimeType
 
 class AudioStream(Stream):
     class Audio(BaseModel):
