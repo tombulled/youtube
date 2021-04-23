@@ -1,46 +1,10 @@
 import addict
-import innertube.models
-# import innertube.devices
-# import innertube.services
-from . import utils
-from . import operations
 
-from innertube.models import \
-(
-    AppInfo,
-)
+import typing
 
-from typing import \
-(
-    Any,
-)
+import innertube.utils
 
-# def get_web_app_info() -> AppInfo:
-#     data = addict.Dict \
-#     (
-#         operations.video_info \
-#         (
-#             video_id = constants.SAMPLE_VIDEO_ID,
-#         )
-#     )
-#
-#     return innertube.models.AppInfo \
-#     (
-#         client = innertube.models.ClientInfo \
-#         (
-#             name    = utils.get(data.c),
-#             version = utils.get(data.cver),
-#         ),
-#         device  = innertube.devices.Web,
-#         service = innertube.services.YouTube,
-#         api     = innertube.models.ApiInfo \
-#         (
-#             key     = utils.get(data.innertube_api_key),
-#             version = utils.get(data.innertube_api_version, lambda value: value.lstrip('v')),
-#         ),
-#     )
-
-def flatten(items) -> addict.Dict:
+def flatten(items):
     flat = addict.Dict()
 
     for item in items:
@@ -49,16 +13,26 @@ def flatten(items) -> addict.Dict:
 
     return flat
 
-def get(value: Any, *formatters):
-    if value in (None, {}):
-        return
+def is_empty_addict(value):
+    return isinstance(value, addict.Dict) and not value
 
-    for formatter in formatters:
-        try:
-            value = formatter(value)
-        except:
-            raise # TEMP
-
-            return
+def parse(value, *parsers):
+    if not is_empty_addict(value):
+        for parser in parsers:
+            value = parser(value)
 
     return value
+
+def filter(function = None, **kwargs):
+    return innertube.utils.filter \
+    (
+        function or \
+        (
+            lambda key, value: not is_empty_addict(value)
+        ),
+        **kwargs
+    )
+
+# TODO: Implement count
+def lstrip(string: str, substring: str, count: typing.Optional[int] = None) -> str:
+    return string[len(substring):] if string.startswith(substring) else string

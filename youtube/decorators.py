@@ -1,4 +1,5 @@
 import functools
+import pydantic
 
 def parse(parser):
     def decorator(func):
@@ -10,7 +11,10 @@ def parse(parser):
 
     return decorator
 
-def proxy(wrapped):
+def objectify(type):
+    return parse(functools.partial(pydantic.parse_obj_as, type))
+
+def imitate(wrapped):
     def decorator(func):
         return_annotation = getattr(func, '__annotations__', {}).get('return')
 
@@ -19,5 +23,17 @@ def proxy(wrapped):
         getattr(wrapper, '__annotations__', {})['return'] = return_annotation
 
         return wrapper
+
+    return decorator
+
+def method(source = None, parser = None):
+    def decorator(func):
+        return_annotation = getattr(func, '__annotations__', {}).get('return')
+
+        if source:            func = imitate(source)(func)
+        if parser:            func = parse(parser)(func)
+        if return_annotation: func = objectify(return_annotation)(func)
+
+        return func
 
     return decorator

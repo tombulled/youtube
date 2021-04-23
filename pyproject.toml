@@ -21,6 +21,7 @@ pendulum = "^2.1.2"
 requests = "^2.25.1"
 pydantype = {git = "https://github.com/tombulled/pydantype.git", rev = "main"}
 mime = {git = "https://github.com/tombulled/mime.git", rev = "main"}
+venum = {git = "https://github.com/tombulled/venum.git", rev = "main"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
