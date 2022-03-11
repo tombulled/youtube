@@ -1,4 +1,4 @@
-# youtube - **Still under active development**
+# youtube - **Still under development**
 Python Client for YouTube using Google's Private InnerTube API
 
 ## Installation
